@@ -1,0 +1,71 @@
+{
+  "name": "memento",
+  "version": "0.0.1",
+  "private": true,
+  "author": "Andreas Larsson <andla913@gmail.com>",
+  "description": "Minimal time tracker application",
+  "homepage": "./",
+  "main": "public/electron.js",
+  "dependencies": {
+    "@material-ui/core": "^4.6.1",
+    "@material-ui/icons": "^4.5.1",
+    "cross-env": "^7.0.2",
+    "electron-is-dev": "^1.2.0",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "^3.4.1",
+    "recharts": "^1.8.5",
+    "sqlite3": "^5.0.0",
+    "uuid": "^3.3.3"
+  },
+  "scripts": {
+    "react-start": "react-scripts start",
+    "react-build": "react-scripts build",
+    "react-test": "react-scripts test",
+    "react-eject": "react-scripts eject",
+    "release": "yarn react-build && electron-builder --publish=always",
+    "build": "yarn react-build && yarn electron-build",
+    "start": "concurrently \"cross-env BROWSER=none yarn react-start\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron-build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.andla913.memento",
+    "productName": "Memento",
+    "icon": "./assets/mac/icon.icns",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    }
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "electron-rebuild": "^2.0.1",
+    "concurrently": "^5.2.0",
+    "electron": "^9.0.4",
+    "electron-builder": "^22.7.0",
+    "eslint-plugin-react-hooks": "^4.1.0",
+    "wait-on": "^5.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andreaslarsson/memento.git"
+  }
+}

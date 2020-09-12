@@ -50,15 +50,15 @@ export default function TemporaryDrawer(props) {
       onKeyDown={toggleDrawer('left', false)}>
       <HashRouter>
         <List>
-          <ListItem button key="activities" component={NavLink} onClick={() => props.menuItemSelect('ActivityList')} to="/">
+          <ListItem button key="activities" component={NavLink} to="/">
             <ListItemIcon><ListIcon /></ListItemIcon>
             <ListItemText primary="Activities" />
           </ListItem>
-          <ListItem button key="Statistics" component={NavLink} onClick={() => props.menuItemSelect('Statistics')} to="/statistics">
+          <ListItem button key="Statistics" component={NavLink} to="/statistics">
             <ListItemIcon><DashboardIcon /></ListItemIcon>
             <ListItemText primary="Statistics" />
           </ListItem>
-          <ListItem button key="Settings" component={NavLink} onClick={() => props.menuItemSelect('Settings')} to="/settings">
+          <ListItem button key="Settings" component={NavLink} to="/settings">
             <ListItemIcon><SettingsIcon /></ListItemIcon>
             <ListItemText primary="Settings" />
           </ListItem>

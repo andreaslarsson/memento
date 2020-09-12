@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Paper, Table, TableBody } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import ActivityRow from './ActivityRow';
@@ -17,6 +17,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ActivityList(props) {
     const classes = useStyles();
+
+    useEffect(() => {
+        props.setTitle("ActivityList");
+      }, []);
 
     const filterActivities = activity => {
         return activity.show;

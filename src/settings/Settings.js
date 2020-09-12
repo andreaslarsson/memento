@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Table, TableBody, TableRow, TableCell, Switch, Paper, Grid, Typography, Fade } from '@material-ui/core';
 
@@ -25,6 +25,10 @@ const useStyles = makeStyles((theme) => ({
 export default function Settings(props) {
   const classes = useStyles();
 
+  useEffect(() => {
+    props.setTitle("Settings");
+  }, []);
+
   return (
     <div className={classes.root}>
       <Grid container spacing={0}>
@@ -36,10 +40,10 @@ export default function Settings(props) {
                 <TableBody>
                   <TableRow>
                     <TableCell align="left"><Typography align="left">Enable dark theme</Typography></TableCell>
-                    <TableCell align="right"><Switch name="checkedDarkMode" 
-                    color="secondary" 
-                    checked = {props.useDarkMode}
-                    onChange={(e) => { props.handleThemeChange(e.target.checked) }} /></TableCell>
+                    <TableCell align="right"><Switch name="checkedDarkMode"
+                      color="secondary"
+                      checked={props.useDarkMode}
+                      onChange={(e) => { props.handleThemeChange(e.target.checked) }} /></TableCell>
                   </TableRow>
                 </TableBody>
               </Table>

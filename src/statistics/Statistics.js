@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Grid, Fade } from '@material-ui/core';
 
 import HourCard from './HourCard';
@@ -6,6 +6,10 @@ import WeekGraphCard from './WeekGraphCard';
 import DailyReportCard from './DailyReportCard';
 
 export default function Statistics(props) {
+
+  useEffect(() => {
+    props.setTitle("Statistics");
+  }, []);
 
   const getMondayThisWeek = _ => {
     let today = new Date();

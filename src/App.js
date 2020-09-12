@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AppBar, Toolbar, CssBaseline, Typography, ThemeProvider, createMuiTheme } from '@material-ui/core';
+import { AppBar, Toolbar, CssBaseline, Typography, ThemeProvider, createMuiTheme, Fade } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Route, HashRouter as Router } from "react-router-dom";
 
@@ -152,10 +152,6 @@ export default function App() {
         }
     });
 
-    const menuItemSelect = (item) => {
-        setTitle(item);
-    };
-
     const onNewActivitySubmit = title => {
         addActivity(title);
     };
@@ -184,19 +180,28 @@ export default function App() {
                 <div className="className">
                     <AppBar position="static" color="primary">
                         <Toolbar variant="dense">
-                            <Menu menuItemSelect={menuItemSelect} />
+                            <Menu />
                             {viewHeader()}
                         </Toolbar>
                     </AppBar>
                 </div>
                 <div className="content">
                     <Router>
-                        <Route exact path="/"><ActivityList activities={activities}
-                            onMenuAction={onMenuAction}
-                            onToggleActive={onToggleActive} />
+                        <Route exact path="/">
+                            <ActivityList activities={activities}
+                                onMenuAction={onMenuAction}
+                                onToggleActive={onToggleActive}
+                                setTitle={setTitle} />
                         </Route>
-                        <Route path="/statistics"><Statistics activities={activities} /></Route>
-                        <Route path="/settings"><Settings useDarkMode={darkMode} handleThemeChange={handleThemeChange} /></Route>
+                        <Route path="/statistics">
+                            <Statistics activities={activities}
+                                setTitle={setTitle} />
+                        </Route>
+                        <Route path="/settings">
+                            <Settings useDarkMode={darkMode}
+                                handleThemeChange={handleThemeChange}
+                                setTitle={setTitle} />
+                        </Route>
                     </Router>
                 </div>
             </div>

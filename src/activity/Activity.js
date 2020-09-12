@@ -1,11 +1,11 @@
 import TimeEntry from './TimeEntry';
 import { msToTimeString, dateCompare, isDateAfter } from '../common/Util';
-const uuid = require('uuid/v1');
+import { v4 as uuidv4 } from 'uuid';
 
 class Activity {
     constructor(title, id = null, timeEntries = null, show = true, active = false, currentTimeEntry = null) {
         this.title = title;
-        this.id = (id ? id : uuid());
+        this.id = (id ? id : uuidv4());
         this.isActive = active;
         this.timeEntries = (timeEntries ? parseTimeEntries(timeEntries) : []);
         this.currentTimeEntry = currentTimeEntry ? new TimeEntry(currentTimeEntry.startTime) : null;

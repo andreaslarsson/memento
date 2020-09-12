@@ -1,5 +1,6 @@
 {
   "name": "memento",
+  "productName": "Memento",
   "version": "0.0.1",
   "private": true,
   "author": "Andreas Larsson <andla913@gmail.com>",
@@ -17,7 +18,7 @@
     "react-scripts": "^3.4.1",
     "recharts": "^1.8.5",
     "sqlite3": "^5.0.0",
-    "uuid": "^3.3.3"
+    "uuid": "^8.3.0"
   },
   "scripts": {
     "react-start": "react-scripts start",
@@ -57,10 +58,10 @@
     ]
   },
   "devDependencies": {
-    "electron-rebuild": "^2.0.1",
     "concurrently": "^5.2.0",
-    "electron": "^9.0.4",
+    "electron": "^10.1.1",
     "electron-builder": "^22.7.0",
+    "electron-rebuild": "^2.0.1",
     "eslint-plugin-react-hooks": "^4.1.0",
     "wait-on": "^5.0.1"
   },

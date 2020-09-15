@@ -20,7 +20,7 @@
     "uuid": "^3.3.3"
   },
   "scripts": {
-    "react-start": "react-scripts start",
+    "react-start": "react-app-rewired start",
     "react-build": "react-scripts build",
     "react-test": "react-scripts test",
     "react-eject": "react-scripts eject",
@@ -57,11 +57,14 @@
     ]
   },
   "devDependencies": {
-    "electron-rebuild": "^2.0.1",
+    "babel-plugin-import": "^1.13.0",
     "concurrently": "^5.2.0",
+    "customize-cra": "^1.0.0",
     "electron": "^9.0.4",
     "electron-builder": "^22.7.0",
+    "electron-rebuild": "^2.0.1",
     "eslint-plugin-react-hooks": "^4.1.0",
+    "react-app-rewired": "^2.1.6",
     "wait-on": "^5.0.1"
   },
   "repository": {

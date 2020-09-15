@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { AppBar, Toolbar, CssBaseline, Typography, ThemeProvider, createMuiTheme, Fade } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { AppBar, Toolbar, CssBaseline, Typography } from '@material-ui/core';
+import { ThemeProvider, createMuiTheme, makeStyles} from '@material-ui/core/styles';
 import { Route, HashRouter as Router } from "react-router-dom";
 
 import Menu from './Menu';

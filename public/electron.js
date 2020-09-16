@@ -39,7 +39,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: (isDev ? 900 : 550),
     height: 680,
-    minWidth: 450,
+    minWidth: 500,
     minHeight: 300,
     webPreferences: {
       nodeIntegration: true,

@@ -1,17 +1,84 @@
 import React, { useState, useEffect } from 'react';
-import { AppBar, Toolbar, CssBaseline, Typography } from '@material-ui/core';
-import { ThemeProvider, createMuiTheme, makeStyles} from '@material-ui/core/styles';
+
+import { ThemeProvider, createMuiTheme, makeStyles, fade } from '@material-ui/core/styles';
+
+import AppBar from '@material-ui/core/AppBar';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import InputBase from '@material-ui/core/InputBase';
+import AddIcon from '@material-ui/icons/Add';
+
 import { Route, HashRouter as Router } from "react-router-dom";
 
-import Menu from './Menu';
+import SideRail from './SideRail';
 import Activity from './activity/Activity';
 import ActivityList from './activity/ActivityList';
-import ActivityForm from './activity/ActivityForm';
 import Settings from './settings/Settings';
 import Statistics from './statistics/Statistics';
 
 const electron = window.require('electron');
 const ipcRenderer = electron.ipcRenderer;
+
+const useStyles = makeStyles((theme) => ({
+    root: {
+        display: 'flex',
+    },
+    appBar: {
+        zIndex: theme.zIndex.drawer + 1,
+    },
+    content: {
+        flexGrow: 1,
+        padding: theme.spacing(0),
+    },
+    title: {
+        flexGrow: 1,
+        display: 'none',
+        [theme.breakpoints.up('sm')]: {
+            display: 'block',
+        },
+    },
+    search: {
+        position: 'relative',
+        borderRadius: theme.shape.borderRadius,
+        backgroundColor: fade(theme.palette.common.white, 0.15),
+        '&:hover': {
+            backgroundColor: fade(theme.palette.common.white, 0.25),
+        },
+        marginRight: 0,
+        width: '100%',
+        [theme.breakpoints.up('sm')]: {
+            marginLeft: theme.spacing(1),
+            width: 'auto',
+        },
+    },
+    searchIcon: {
+        padding: theme.spacing(0, 2),
+        height: '100%',
+        position: 'absolute',
+        pointerEvents: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    inputRoot: {
+        color: 'inherit',
+    },
+    inputInput: {
+        padding: theme.spacing(1, 1, 1, 0),
+        // vertical padding + font size from searchIcon
+        paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+        transition: theme.transitions.create('width'),
+        width: '100%',
+        [theme.breakpoints.up('sm')]: {
+            width: '20ch',
+            '&:focus': {
+                width: '50ch',
+            },
+        },
+    },
+
+}));
 
 const readDataFile = _ => {
     let reconstruct = ipcRenderer.sendSync('read-activities');
@@ -23,20 +90,9 @@ const readDataFile = _ => {
     return reconstructedList;
 };
 
-const useStyles = makeStyles((theme) => ({
-    table: {
-        minWidth: 400,
-    },
-    paper: {
-        padding: theme.spacing(0),
-        margin: theme.spacing(0),
-        textAlign: 'left',
-        color: theme.palette.text.primary,
-    },
-}));
-
 export default function App() {
     const classes = useStyles();
+
     const [activities, setActivities] = useState([]);
     const [title, setTitle] = useState("ActivityList");
     const [darkMode, setDarkMode] = useState(false);
@@ -162,30 +218,50 @@ export default function App() {
 
     const viewHeader = () => {
         if (title === "ActivityList") {
-            return (
-                <ActivityForm newActivityAdded={onNewActivitySubmit} darkMode={darkMode} />
-            )
+            return "Tasks"
         }
         else {
-            return (
-                <Typography variant="h6" className={classes.title}>{title}</Typography>
-            )
+            return title
         }
+    };
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        document.activeElement.blur();
+        let title = document.getElementById("new_activity_input").value;
+        document.getElementById("new_activity_input").value = "";
+        onNewActivitySubmit(title);
     };
 
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <div className={classes.root}>
-                <div className="className">
-                    <AppBar position="static" color="primary">
-                        <Toolbar variant="dense">
-                            <Menu />
-                            {viewHeader()}
-                        </Toolbar>
-                    </AppBar>
-                </div>
-                <div className="content">
+                <AppBar position="fixed" className={classes.appBar}>
+                    <Toolbar>
+                        <Typography className={classes.title} variant="h6">{viewHeader()}</Typography>
+                        <div className={classes.search}>
+                            <div className={classes.searchIcon}>
+                                <AddIcon fontSize="small" />
+                            </div>
+                            <form onSubmit={handleSubmit}>
+                                <InputBase
+                                    id="new_activity_input"
+                                    placeholder="Add new task"
+                                    classes={{
+                                        root: classes.inputRoot,
+                                        input: classes.inputInput,
+                                    }}
+                                    onSubmit={handleSubmit}
+                                    inputProps={{ 'aria-label': 'search' }}
+                                />
+                            </form>
+                        </div>
+                    </Toolbar>
+                </AppBar>
+                <SideRail />
+                <main className={classes.content}>
+                    <Toolbar />
                     <Router>
                         <Route exact path="/">
                             <ActivityList activities={activities}
@@ -203,7 +279,7 @@ export default function App() {
                                 setTitle={setTitle} />
                         </Route>
                     </Router>
-                </div>
+                </main>
             </div>
         </ThemeProvider>
     );

@@ -6,7 +6,7 @@
   "author": "Andreas Larsson <andla913@gmail.com>",
   "description": "Minimal time tracker application",
   "homepage": "./",
-  "main": "public/main.js",
+  "main": "public/electron.js",
   "dependencies": {
     "@material-ui/core": "^4.6.1",
     "@material-ui/icons": "^4.5.1",

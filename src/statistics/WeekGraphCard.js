@@ -18,7 +18,7 @@ export default function WeekGraphCard(props) {
     <React.Fragment>
       <Card className={classes.card}>
         <CardMedia>
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="99%" height={200}>
             <BarChart data={props.data}>
               <XAxis dataKey="name" />
               <Tooltip />

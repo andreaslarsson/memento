@@ -6,10 +6,11 @@ import WeekGraphCard from './WeekGraphCard';
 import DailyReportCard from './DailyReportCard';
 
 export default function Statistics(props) {
+  const setTitle = props.setTitle;
 
   useEffect(() => {
-    props.setTitle("Statistics");
-  }, []);
+    setTitle("Statistics");
+  }, [setTitle]);
 
   const getMondayThisWeek = _ => {
     let today = new Date();

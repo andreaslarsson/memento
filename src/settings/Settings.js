@@ -24,10 +24,11 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Settings(props) {
   const classes = useStyles();
-
+  const setTitle = props.setTitle;
+  
   useEffect(() => {
-    props.setTitle("Settings");
-  }, []);
+    setTitle("Settings");
+  }, [setTitle]);
 
   return (
     <div className={classes.root}>

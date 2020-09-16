@@ -17,10 +17,11 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ActivityList(props) {
     const classes = useStyles();
+    const setTitle = props.setTitle;
 
     useEffect(() => {
-        props.setTitle("ActivityList");
-      }, []);
+        setTitle("ActivityList");
+      }, [setTitle]);
 
     const filterActivities = activity => {
         return activity.show;

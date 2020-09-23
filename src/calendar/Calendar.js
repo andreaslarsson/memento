@@ -45,7 +45,9 @@ export default function Calendar(props) {
         else if (changed) {
             let key = Object.keys(changed)[0];
             let timeEntry = timeEntries.get(key);
-            props.timeEntryUpdate('update', timeEntry.activity, timeEntry.id, changed[key].startDate, changed[key].endDate);
+            let start = changed[key].startDate !== undefined ? changed[key].startDate : timeEntry.startDate;
+            let end = changed[key].endDate !== undefined ? changed[key].endDate : timeEntry.endDate;
+            props.timeEntryUpdate('update', timeEntry.activity, timeEntry.id, start, end);
         }
         else if (deleted !== undefined) {
             let timeEntry = timeEntries.get(deleted);

@@ -14,8 +14,10 @@ import { Route, HashRouter as Router } from "react-router-dom";
 import SideRail from './SideRail';
 import Activity from './activity/Activity';
 import ActivityList from './activity/ActivityList';
+import Calendar from './calendar/Calendar';
 import Settings from './settings/Settings';
 import Statistics from './statistics/Statistics';
+import TimeEntry from './activity/TimeEntry';
 
 const electron = window.require('electron');
 const ipcRenderer = electron.ipcRenderer;
@@ -94,7 +96,7 @@ export default function App() {
     const classes = useStyles();
 
     const [activities, setActivities] = useState([]);
-    const [title, setTitle] = useState("ActivityList");
+    const [title, setTitle] = useState("");
     const [darkMode, setDarkMode] = useState(false);
 
     const pallet = darkMode ? "dark" : "light";
@@ -106,11 +108,9 @@ export default function App() {
     }, []);
 
     useEffect(() => {
-        return () => {
-            if (activities.length > 0) {
-                ipcRenderer.send('save-activities', activities);
-            }
-        };
+        if (activities.length > 0) {
+            ipcRenderer.send('save-activities', activities);
+        }
     }, [activities]);
 
     const getActivityFromId = id => {
@@ -159,9 +159,7 @@ export default function App() {
     };
 
     const deleteActivity = activityId => {
-        let activityItem = getActivityFromId(activityId);
-        activities.splice(activityItem.index, 1);
-        setActivities([...activities]);
+        setActivities(activities.filter(activity => activity.id !== activityId));
     };
 
     const hideActivity = activityId => {
@@ -190,6 +188,25 @@ export default function App() {
                 break
         }
     };
+    
+    const timeEntryUpdate = (action, activityId, timeEntryId=null, startTime=null, endTime=null) => {
+        let activityItem = getActivityFromId(activityId);
+
+        if (action === 'add') {
+            let timeEntry = new TimeEntry(startTime, endTime);
+            activityItem.activity.timeEntries = [...activityItem.activity.timeEntries, timeEntry];
+        }
+        else if (action === 'update') {
+            let updatedTimeEntry = new TimeEntry(startTime, endTime, timeEntryId);
+            activityItem.activity.timeEntries = activityItem.activity.timeEntries.map(entry => { return entry.id === timeEntryId ? updatedTimeEntry : entry});
+        }
+        else if (action === 'delete') {
+            activityItem.activity.timeEntries = activityItem.activity.timeEntries.filter(timeEntry => timeEntry.id !== timeEntryId);
+        }
+        
+        activities[activityItem.index] = activityItem.activity;
+        setActivities([...activities]);
+    }
 
     const theme = createMuiTheme({
         palette: {
@@ -216,15 +233,6 @@ export default function App() {
         setDarkMode(useDarkMode);
     }
 
-    const viewHeader = () => {
-        if (title === "ActivityList") {
-            return "Tasks"
-        }
-        else {
-            return title
-        }
-    };
-
     const handleSubmit = (event) => {
         event.preventDefault();
         document.activeElement.blur();
@@ -239,7 +247,7 @@ export default function App() {
             <div className={classes.root}>
                 <AppBar position="fixed" className={classes.appBar}>
                     <Toolbar>
-                        <Typography className={classes.title} variant="h6">{viewHeader()}</Typography>
+                        <Typography className={classes.title} variant="h6">{title}</Typography>
                         <div className={classes.search}>
                             <div className={classes.searchIcon}>
                                 <AddIcon fontSize="small" />
@@ -268,6 +276,11 @@ export default function App() {
                                 onMenuAction={onMenuAction}
                                 onToggleActive={onToggleActive}
                                 setTitle={setTitle} />
+                        </Route>
+                        <Route path="/calendar">
+                            <Calendar activities={activities}
+                                setTitle={setTitle}
+                                timeEntryUpdate={timeEntryUpdate}/>
                         </Route>
                         <Route path="/statistics">
                             <Statistics activities={activities}

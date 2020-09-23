@@ -1,6 +1,6 @@
 import React from 'react';
 import { Drawer, Toolbar, List, ListItem, ListItemIcon } from '@material-ui/core';
-import { Dehaze as DehazeIcon, Dashboard as DashboardIcon, Settings as SettingsIcon } from '@material-ui/icons';
+import { Dehaze as DehazeIcon, Dashboard as DashboardIcon, Settings as SettingsIcon, CalendarToday as CalendarTodayIcon } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { NavLink, HashRouter as Router } from "react-router-dom";
 
@@ -39,6 +39,9 @@ export default function SideRail() {
                     <List>
                         <ListItem button key="activities" component={NavLink} to="/">
                             <ListItemIcon><DehazeIcon /></ListItemIcon>
+                        </ListItem>
+                        <ListItem button key="Calendar" component={NavLink} to="/calendar">
+                            <ListItemIcon><CalendarTodayIcon /></ListItemIcon>
                         </ListItem>
                         <ListItem button key="Statistics" component={NavLink} to="/statistics">
                             <ListItemIcon><DashboardIcon /></ListItemIcon>

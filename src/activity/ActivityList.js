@@ -20,7 +20,7 @@ export default function ActivityList(props) {
     const setTitle = props.setTitle;
 
     useEffect(() => {
-        setTitle("ActivityList");
+        setTitle("Tasks");
       }, [setTitle]);
 
     const filterActivities = activity => {

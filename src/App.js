@@ -119,55 +119,63 @@ export default function App() {
             }
         }
     };
+
+    const getActivityIndex = id => {
+        return activities.findIndex(activity => activity.id === id);
+    }
+
     const addActivity = title => {
         let newActivity = new Activity(title);
-        activities.unshift(newActivity);
-        setActivities([...activities]);
+        setActivities([newActivity, ...activities]);
     };
 
     const stopActivity = (activityId = null) => {
-        var activityItem;
+        var activityIdx = -1;
         if (activityId) {
-            activityItem = getActivityFromId(activityId);
-
+            activityIdx = getActivityIndex(activityId);
         }
         else {
             for (let i = 0; i < activities.length; i++) {
                 let tmpActivity = activities[i];
                 if (tmpActivity.isActive) {
-                    activityItem = { "index": i, "activity": tmpActivity };
+                    activityIdx = i;
                     break;
                 }
             }
         }
 
-        if (activityItem === undefined) return;
+        if (activityIdx === -1) return;
 
-        activityItem.activity.setInactive();
-        activities[activityItem.index] = activityItem.activity;
-        setActivities([...activities]);
-    };
+        let activitiesCopy = [...activities];
+        let activity = activitiesCopy[activityIdx];
+        activity.setInactive();
+        activitiesCopy[activityIdx] = activity;
+        setActivities(activitiesCopy);
+
+    }
 
     const startActivity = activityId => {
         stopActivity();
 
-        let activityItem = getActivityFromId(activityId);
-        activityItem.activity.setActive();
-        activities[activityItem.index] = activityItem.activity;
-        setActivities([...activities]);
-    };
+        let activityIdx = getActivityIndex(activityId);
+        let activitiesCopy = [...activities];
+        let activity = activitiesCopy[activityIdx];
+        activity.setActive();
+        activitiesCopy[activityIdx] = activity;
+        setActivities(activitiesCopy);
+    }
 
     const deleteActivity = activityId => {
         setActivities(activities.filter(activity => activity.id !== activityId));
     };
 
     const hideActivity = activityId => {
-        let activityItem = getActivityFromId(activityId);
-        activityItem.activity.show = false;
-        activityItem.activity.setInactive();
-
-        activities[activityItem.index] = activityItem.activity;
-        setActivities([...activities]);
+        let activityIdx = getActivityIndex(activityId);
+        let activitiesCopy = [...activities];
+        let activity = activitiesCopy[activityIdx];
+        activity.show = false;
+        activitiesCopy[activityIdx] = activity;
+        setActivities(activitiesCopy);
     };
 
     const onToggleActive = activityId => {
@@ -187,26 +195,28 @@ export default function App() {
                 break
         }
     };
-    
+
     const timeEntryUpdate = (action, activityId, timeEntryId=null, startTime=null, endTime=null) => {
-        let activityItem = getActivityFromId(activityId);
+        let activityIdx = getActivityIndex(activityId);
+        let activitiesCopy = [...activities];
+        let activity = activitiesCopy[activityIdx];
 
         if (action === 'add') {
             let timeEntry = new TimeEntry(startTime, endTime);
-            activityItem.activity.timeEntries = [...activityItem.activity.timeEntries, timeEntry];
+            activity.timeEntries = [...activity.timeEntries, timeEntry];
         }
         else if (action === 'update') {
             let updatedTimeEntry = new TimeEntry(startTime, endTime, timeEntryId);
-            activityItem.activity.timeEntries = activityItem.activity.timeEntries.map(entry => { return entry.id === timeEntryId ? updatedTimeEntry : entry});
+            activity.timeEntries = activity.timeEntries.map(entry => { return entry.id === timeEntryId ? updatedTimeEntry : entry});
         }
         else if (action === 'delete') {
-            activityItem.activity.timeEntries = activityItem.activity.timeEntries.filter(timeEntry => timeEntry.id !== timeEntryId);
+            activity.timeEntries = activity.timeEntries.filter(timeEntry => timeEntry.id !== timeEntryId);
         }
-        
-        activities[activityItem.index] = activityItem.activity;
-        setActivities([...activities]);
-    }
 
+        activitiesCopy[activityIdx] = activity;
+        setActivities(activitiesCopy);
+    }
+    
     const theme = createMuiTheme({
         palette: {
             type: pallet,

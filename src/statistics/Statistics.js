@@ -5,6 +5,8 @@ import HourCard from './HourCard';
 import WeekGraphCard from './WeekGraphCard';
 import DailyReportCard from './DailyReportCard';
 
+import { getLoggedTimeOnDate, getLoggedTimeAfterDate } from '../common/Util';
+
 export default function Statistics(props) {
   const setTitle = props.setTitle;
 
@@ -36,7 +38,7 @@ export default function Statistics(props) {
   const hoursWorkedOnDate = date => {
     let secondsWorked = 0.0;
     props.activities.forEach((activity) => {
-      secondsWorked += (activity.getLoggedTimeOnDate(date) / 1000);
+      secondsWorked += (getLoggedTimeOnDate(activity.timeEntries, activity.currentTimeEntry, date) / 1000);
     });
 
     return (secondsWorked / 3600).toFixed(1);
@@ -45,7 +47,7 @@ export default function Statistics(props) {
   const hoursWorkedAfterDate = date => {
     let secondsWorked = 0.0;
     props.activities.forEach((activity) => {
-      secondsWorked += (activity.getLoggedTimeAfterDate(date) / 1000);
+      secondsWorked += (getLoggedTimeAfterDate(activity.timeEntries, activity.currentTimeEntry, date) / 1000);
     })
 
     return (secondsWorked / 3600).toFixed(1);
@@ -89,7 +91,7 @@ export default function Statistics(props) {
     let activityTime = [];
     let today = new Date();
     props.activities.forEach((activity) => {
-      let secondsWorked = (activity.getLoggedTimeOnDate(today) / 1000);
+      let secondsWorked = (getLoggedTimeOnDate(activity.timeEntries, activity.currentTimeEntry, today) / 1000);
       if (secondsWorked > 0) {
         activityTime.push({ "title": activity.title, "hours": (secondsWorked / 3600).toFixed(1) + "h" });
       }
@@ -119,18 +121,18 @@ export default function Statistics(props) {
           </Fade>
         </Grid>
         <Grid container direction="row" justify="center">
-          <Grid item xs={12}>
-            <Fade in={true} timeout={500} style={{ transitionDelay: '300ms' }}>
+          <Fade in={true} timeout={500} style={{ transitionDelay: '300ms' }}>
+            <Grid item xs={12}>
               <WeekGraphCard data={weekWorkedData()} text={"Time spent the last five days"} />
-            </Fade>
-          </Grid>
+            </Grid>
+          </Fade>
         </Grid>
         <Grid container direction="row" justify="center">
-          <Grid item xs={12}>
-            <Fade in={true} timeout={500} style={{ transitionDelay: '400ms' }}>
+          <Fade in={true} timeout={500} style={{ transitionDelay: '400ms' }}>
+            <Grid item xs={12}>
               <DailyReportCard data={dailyWork()} text={"Daily report"} />
-            </Fade>
-          </Grid>
+            </Grid>
+          </Fade>
         </Grid>
       </Grid>
     </div>

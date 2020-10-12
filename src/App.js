@@ -1,26 +1,23 @@
-import React, { useState, useEffect } from 'react';
-
+import React, { useState, useEffect, useReducer } from 'react';
 import { ThemeProvider, createMuiTheme, makeStyles, fade } from '@material-ui/core/styles';
+import { AppBar, CssBaseline, Toolbar, Typography, InputBase } from '@material-ui/core';
 
-import AppBar from '@material-ui/core/AppBar';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import InputBase from '@material-ui/core/InputBase';
 import AddIcon from '@material-ui/icons/Add';
 
 import { Route, HashRouter as Router } from "react-router-dom";
 
 import SideRail from './SideRail';
-import Activity from './activity/Activity';
 import ActivityList from './activity/ActivityList';
 import Calendar from './calendar/Calendar';
 import Settings from './settings/Settings';
 import Statistics from './statistics/Statistics';
 import TimeEntry from './activity/TimeEntry';
 
+import { v4 as uuidv4 } from 'uuid';
+
 const electron = window.require('electron');
 const ipcRenderer = electron.ipcRenderer;
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -69,8 +66,8 @@ const useStyles = makeStyles((theme) => ({
     inputInput: {
         padding: theme.spacing(1, 1, 1, 0),
         paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-        transition: theme.transitions.create('width'),
         width: '100%',
+        transition: theme.transitions.create('width'),
         [theme.breakpoints.up('sm')]: {
             width: '20ch',
             '&:focus': {
@@ -81,20 +78,71 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
+const parseTimeEntries = timeEntries => {
+    var parsedTimeEntries = [];
+    for (const entry of timeEntries) {
+        parsedTimeEntries.push(new TimeEntry(entry.startTime, entry.endTime));
+    }
+    return parsedTimeEntries;
+};
+
 const readDataFile = _ => {
     let reconstruct = ipcRenderer.sendSync('read-activities');
     let reconstructedList = [];
     for (const act of reconstruct) {
-        reconstructedList.push(new Activity(act.title, act.id, JSON.parse(act.time_entries), act.show, act.is_active, JSON.parse(act.current_timeentry)));
+        reconstructedList.push({
+            "title": act.title,
+            "id": act.id,
+            "timeEntries": parseTimeEntries(JSON.parse(act.time_entries)),
+            "show": act.show,
+            "isActive": act.is_active,
+            "currentTimeEntry": (act.current_timeentry !== "null" ? new TimeEntry(JSON.parse(act.current_timeentry).startTime) : null)
+        });
     }
 
     return reconstructedList;
 };
 
+const initialState = { activities: readDataFile() };
+
+function reducer(state, action) {
+    switch (action.type) {
+        case 'add': {
+            return { activities: [action.newActivity, ...state.activities] }
+        }
+        case 'delete': {
+            return { activities: state.activities.filter(activity => activity.id !== action.activityId) };
+        }
+        case 'start': {
+            let activitiesCopy = [...state.activities];
+            let activity = { ...activitiesCopy[action.activityIdx], isActive: true, currentTimeEntry: new TimeEntry() };
+            activitiesCopy[action.activityIdx] = activity;
+
+            return { activities: activitiesCopy }
+        }
+        case 'stop': {
+            let activitiesCopy = [...state.activities];
+            let activity = activitiesCopy[action.activityIdx];
+            let currentTE = activity.currentTimeEntry;
+            currentTE.stopTracking();
+            activity = { ...activity, isActive: false, currentTimeEntry: null, timeEntries: [...activity.timeEntries, currentTE] };
+            activitiesCopy[action.activityIdx] = activity;
+            return { activities: activitiesCopy }
+        }
+        case 'update': {
+            return { activities: state.activities.map((act, index) => {
+                return index === action.activityIndex ? action.activity : act})};
+            }
+        default:
+            throw new Error();
+    }
+}
+
 export default function App() {
     const classes = useStyles();
 
-    const [activities, setActivities] = useState([]);
+    const [activities, dispatch] = useReducer(reducer, initialState);
+
     const [title, setTitle] = useState("");
     const [darkMode, setDarkMode] = useState(false);
 
@@ -103,90 +151,77 @@ export default function App() {
     const secondaryColor = darkMode ? "#2196f3" : "#f57c00";
 
     useEffect(() => {
-        setActivities(readDataFile());
-    }, []);
-
-    useEffect(() => {
-        if (activities.length > 0) {
-            ipcRenderer.send('save-activities', activities);
+        if (activities.activities.length > 0) {
+            ipcRenderer.send('save-activities', activities.activities);
         }
     }, [activities]);
 
-    const getActivityFromId = id => {
-        for (let i = 0; i < activities.length; i++) {
-            if (activities[i].id === id) {
-                return { "index": i, "activity": activities[i] };
-            }
-        }
-    };
-
     const getActivityIndex = id => {
-        return activities.findIndex(activity => activity.id === id);
+        return activities.activities.findIndex(activity => activity.id === id);
     }
 
     const addActivity = title => {
-        let newActivity = new Activity(title);
-        setActivities([newActivity, ...activities]);
+        let newActivity = {
+            "title": title,
+            "id": uuidv4(),
+            "isActive": false,
+            "timeEntries": [],
+            "currentTimeEntry": null,
+            "tags": [],
+            "show": true
+        }
+
+        dispatch({ type: 'add', newActivity: newActivity });
     };
 
-    const stopActivity = (activityId = null) => {
+    const getRunningActivityIndex = _ => {
+        for (let i = 0; i < activities.activities.length; i++) {
+            let tmpActivity = activities.activities[i];
+            if (tmpActivity.isActive) {
+                return i;
+            }
+        }
+        return -1;
+    };
+
+    const stopActivity = activityId => {
         var activityIdx = -1;
         if (activityId) {
             activityIdx = getActivityIndex(activityId);
         }
         else {
-            for (let i = 0; i < activities.length; i++) {
-                let tmpActivity = activities[i];
-                if (tmpActivity.isActive) {
-                    activityIdx = i;
-                    break;
-                }
-            }
+            activityIdx = getRunningActivityIndex();
         }
 
         if (activityIdx === -1) return;
 
-        let activitiesCopy = [...activities];
-        let activity = activitiesCopy[activityIdx];
-        activity.setInactive();
-        activitiesCopy[activityIdx] = activity;
-        setActivities(activitiesCopy);
-
-    }
+        dispatch({ type: 'stop', activityIdx: activityIdx });
+    };
 
     const startActivity = activityId => {
         stopActivity();
-
-        let activityIdx = getActivityIndex(activityId);
-        let activitiesCopy = [...activities];
-        let activity = activitiesCopy[activityIdx];
-        activity.setActive();
-        activitiesCopy[activityIdx] = activity;
-        setActivities(activitiesCopy);
-    }
-
-    const deleteActivity = activityId => {
-        setActivities(activities.filter(activity => activity.id !== activityId));
+        dispatch({ type: 'start', activityIdx: getActivityIndex(activityId) });
     };
 
     const hideActivity = activityId => {
         let activityIdx = getActivityIndex(activityId);
-        let activitiesCopy = [...activities];
+        let activitiesCopy = [...activities.activities];
         let activity = activitiesCopy[activityIdx];
         activity.show = false;
         activitiesCopy[activityIdx] = activity;
-        setActivities(activitiesCopy);
+        dispatch({type: 'update', activityIndex: activityIdx, activity: activity});
     };
 
     const onToggleActive = activityId => {
-        let activityItem = getActivityFromId(activityId);
-        activityItem.activity.isActive ? stopActivity(activityId) : startActivity(activityId);
+        let activityIdx = getActivityIndex(activityId);
+        let activity = activities.activities[activityIdx];
+        activity.isActive ? stopActivity(activityId) : startActivity(activityId);
     };
 
     const onMenuAction = (activityId, action) => {
         switch (action) {
             case 'delete':
-                deleteActivity(activityId);
+                dispatch({ type: 'delete', activityId: activityId });
                 break
             case 'hide':
                 hideActivity(activityId);
@@ -196,9 +231,9 @@ export default function App() {
         }
     };
 
-    const timeEntryUpdate = (action, activityId, timeEntryId=null, startTime=null, endTime=null) => {
+    const timeEntryUpdate = (action, activityId, timeEntryId = null, startTime = null, endTime = null) => {
         let activityIdx = getActivityIndex(activityId);
-        let activitiesCopy = [...activities];
+        let activitiesCopy = [...activities.activities];
         let activity = activitiesCopy[activityIdx];
 
         if (action === 'add') {
@@ -207,16 +242,15 @@ export default function App() {
         }
         else if (action === 'update') {
             let updatedTimeEntry = new TimeEntry(startTime, endTime, timeEntryId);
-            activity.timeEntries = activity.timeEntries.map(entry => { return entry.id === timeEntryId ? updatedTimeEntry : entry});
+            activity.timeEntries = activity.timeEntries.map(entry => { return entry.id === timeEntryId ? updatedTimeEntry : entry });
         }
         else if (action === 'delete') {
             activity.timeEntries = activity.timeEntries.filter(timeEntry => timeEntry.id !== timeEntryId);
         }
 
-        activitiesCopy[activityIdx] = activity;
-        setActivities(activitiesCopy);
+        dispatch({type: 'update', activityIndex: activityIdx, activity: activity});
     }
-    
+
     const theme = createMuiTheme({
         palette: {
             type: pallet,
@@ -280,18 +314,18 @@ export default function App() {
                     <Toolbar />
                     <Router>
                         <Route exact path="/">
-                            <ActivityList activities={activities}
+                            <ActivityList activities={activities.activities}
                                 onMenuAction={onMenuAction}
                                 onToggleActive={onToggleActive}
                                 setTitle={setTitle} />
                         </Route>
                         <Route path="/calendar">
-                            <Calendar activities={activities}
+                            <Calendar activities={activities.activities}
                                 setTitle={setTitle}
-                                timeEntryUpdate={timeEntryUpdate}/>
+                                timeEntryUpdate={timeEntryUpdate} />
                         </Route>
                         <Route path="/statistics">
-                            <Statistics activities={activities}
+                            <Statistics activities={activities.activities}
                                 setTitle={setTitle} />
                         </Route>
                         <Route path="/settings">

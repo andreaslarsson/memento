@@ -6,16 +6,17 @@ import { KeyboardArrowDown, KeyboardArrowUp } from '@material-ui/icons';
 import TimerButton from './TimerButton';
 import ActivityHistory from './ActivityHistory';
 import ActivityTitleWithMenu from './ActivityTitle';
+import { getLoggedTime } from '../common/Util';
 
 export default function ActivityRow(props) {
     const [showHistory, setShowHistory] = useState(false);
-    const [elapsedTime, setElapsedTime] = useState(props.activityItem.getLoggedTime());
+    const [elapsedTime, setElapsedTime] = useState(getLoggedTime(props.activityItem.timeEntries, props.activityItem.currentTimeEntry));
 
     useEffect(() => {
         let interval = null;
         if (props.isActive) {
             interval = setInterval(() => {
-                setElapsedTime(props.activityItem.getLoggedTime());
+                setElapsedTime(getLoggedTime(props.activityItem.timeEntries, props.activityItem.currentTimeEntry));
             }, 200);
         } else if (!props.isActive && elapsedTime !== 0) {
             clearInterval(interval);
@@ -32,7 +33,7 @@ export default function ActivityRow(props) {
     };
 
     const onHistoryEdit = _ => {
-        setElapsedTime(props.activityItem.getLoggedTime());
+        setElapsedTime(getLoggedTime(props.activityItem.timeEntries, props.activityItem.currentTimeEntry));
     }
 
     return (

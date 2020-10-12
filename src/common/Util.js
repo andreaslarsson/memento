@@ -36,8 +36,62 @@ const isDateAfter = (date1, date2) => {
 
 }
 
+const getLoggedTimeOnDate = (timeEntries, currentTimeEntry, date) => {
+  var accumulatedTime = 0;
+
+  timeEntries.forEach(timeEntry => {
+      if (dateCompare(timeEntry.startTime, date)) {
+          accumulatedTime += (timeEntry.endTime.getTime() - timeEntry.startTime.getTime());
+      }
+  });
+
+  if (currentTimeEntry && dateCompare(date, new Date())) {
+    accumulatedTime += (new Date() - currentTimeEntry.startTime);
+}
+
+
+  return accumulatedTime;
+}
+
+const getLoggedTimeAfterDate = (timeEntries, currentTimeEntry, date) => {
+  var accumulatedTime = 0;
+
+  timeEntries.forEach(timeEntry => {
+      if (isDateAfter(timeEntry.startTime, date)) {
+          accumulatedTime += (timeEntry.endTime.getTime() - timeEntry.startTime.getTime());
+      }
+  });
+
+  if (currentTimeEntry && isDateAfter(new Date(), date)) {
+    accumulatedTime += (new Date() - currentTimeEntry.startTime);
+}
+
+  return accumulatedTime;
+}
+
+const getLoggedTime = (timeEntries, currentTimeEntry, toTime = true) => {
+  // Iterate all timeEntries and get its time property. 
+  var accumulatedTime = 0;
+  var today = new Date();
+  timeEntries.forEach(timeEntry => {
+      if (timeEntry.startTime.getDate() >= today.getDate()) {
+          accumulatedTime += (timeEntry.endTime.getTime() - timeEntry.startTime.getTime());
+      }
+  });
+
+  if (currentTimeEntry) {
+    accumulatedTime += (new Date() - currentTimeEntry.startTime);
+}
+
+  return toTime ? msToTimeString(accumulatedTime) : accumulatedTime;
+}
+
+
 export {
   msToTimeString,
   dateCompare,
-  isDateAfter
+  isDateAfter,
+  getLoggedTimeOnDate,
+  getLoggedTimeAfterDate,
+  getLoggedTime
 };

@@ -66,7 +66,7 @@ export default function Calendar(props) {
     return (
         <React.Fragment>
             <Paper>
-                <Scheduler data={Array.from(timeEntries.values())}>
+                <Scheduler data={[...timeEntries.values()]}>
                     <ViewState />
                     <WeekView
                         startDayHour={5.5}

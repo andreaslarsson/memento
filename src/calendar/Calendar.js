@@ -38,6 +38,10 @@ export default function Calendar(props) {
         setTimeEntries(formatData(props.activities))
     }, [props]);
 
+    const scrollToTop = _ => {
+        window.scrollTo(0,0);
+    };
+
     const commitChanges = ({ added, changed, deleted }) => {
         if (added) {
             props.timeEntryUpdate('add', added.activity, null, added.startDate, added.endDate);
@@ -77,14 +81,14 @@ export default function Calendar(props) {
                     <DateNavigator />
                     <TodayButton />
                     <Appointments />
-                    <EditingState onCommitChanges={commitChanges} />
+                    <EditingState onCommitChanges={commitChanges} onAddedAppointmentChange={scrollToTop}/>
                     <IntegratedEditing />
                     <DragDropProvider />
                     <CurrentTimeIndicator />
                     <AppointmentTooltip
                         showCloseButton
                         showDeleteButton />
-                    <AppointmentForm />
+                    <AppointmentForm onVisibilityChange={scrollToTop}/>
                     <Resources data={activities} />
                 </Scheduler>
             </Paper>

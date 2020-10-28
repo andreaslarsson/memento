@@ -269,6 +269,7 @@ export default function App() {
     });
 
     const onNewActivitySubmit = title => {
+        window.scrollTo(0, 0);
         addActivity(title);
     };
 
@@ -299,6 +300,7 @@ export default function App() {
                                 <InputBase
                                     id="new_activity_input"
                                     placeholder="Add new task"
+                                    fullWidth
                                     classes={{
                                         root: classes.inputRoot,
                                         input: classes.inputInput,
